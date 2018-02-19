@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -19,22 +20,26 @@ func main() {
 }
 
 func initialize(database *sql.DB) {
-	statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT)")
+	statement, err := database.Prepare("CREATE TABLE IF NOT EXISTS storage (id INTEGER PRIMARY KEY, key TEXT, value TEXT)")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	statement.Exec()
 }
 
 func fill(database *sql.DB) {
-	statement, _ := database.Prepare("INSERT INTO people (firstname, lastname) VALUES (?, ?)")
-	statement.Exec("Michael", "Lesniak")
+	statement, _ := database.Prepare("INSERT INTO storage (key, value) VALUES (?, ?)")
+	statement.Exec("timestamp", time.Now())
 }
 
 func query(database *sql.DB) {
-	rows, _ := database.Query("SELECT id, firstname, lastname FROM people")
+	rows, _ := database.Query("SELECT id, key, value FROM storage")
 	var id int
-	var firstname string
-	var lastname string
+	var key string
+	var value string
 	for rows.Next() {
-		rows.Scan(&id, &firstname, &lastname)
-		fmt.Println(strconv.Itoa(id) + ": " + firstname + " " + lastname)
+		rows.Scan(&id, &key, &value)
+		fmt.Println(strconv.Itoa(id) + ":" + key + ":" + value)
 	}
 }
