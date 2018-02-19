@@ -1,10 +1,10 @@
 package main
 
 import (
-	"time"
 	"database/sql"
 	"fmt"
 	"strconv"
+	"time"
 
 	// This is the usual way to include an SQL driver in golang. Actually we are not using
 	// any imports from the package explictly.
