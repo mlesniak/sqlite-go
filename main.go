@@ -12,12 +12,23 @@ import (
 
 func main() {
 	database, _ := sql.Open("sqlite3", "./demo.db")
+
+	initialize(database)
+	fill(database)
+	query(database)
+}
+
+func initialize(database *sql.DB) {
 	statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT)")
 	statement.Exec()
+}
 
-	statement, _ = database.Prepare("INSERT INTO people (firstname, lastname) VALUES (?, ?)")
+func fill(database *sql.DB) {
+	statement, _ := database.Prepare("INSERT INTO people (firstname, lastname) VALUES (?, ?)")
 	statement.Exec("Michael", "Lesniak")
+}
 
+func query(database *sql.DB) {
 	rows, _ := database.Query("SELECT id, firstname, lastname FROM people")
 	var id int
 	var firstname string
