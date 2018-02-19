@@ -1,0 +1,2 @@
+# Ignore database demo files unless explicitly added.
+*.db
