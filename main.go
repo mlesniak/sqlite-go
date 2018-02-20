@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"io/ioutil"
+	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	// This is the usual way to include an SQL driver in golang. Actually we are not using
@@ -20,12 +22,26 @@ func main() {
 }
 
 func initialize(database *sql.DB) {
-	statement, err := database.Prepare("CREATE TABLE IF NOT EXISTS storage (id INTEGER PRIMARY KEY, key TEXT, value TEXT)")
+	bytes, err := ioutil.ReadFile("init.sql")
 	if err != nil {
-		fmt.Println(err)
+		log.Println("No initialization file found.")
 		return
 	}
-	statement.Exec()
+
+	cmds := strings.Split(string(bytes), ";")
+	for _, cmd := range cmds {
+		cmd = strings.TrimSpace(cmd)
+		if len(cmd) == 0 {
+			continue
+		}
+		statement, err := database.Prepare(cmd)
+		if err != nil {
+			log.Println("Unable to execute statement: ", cmd)
+			return
+		}
+		log.Println(cmd)
+		statement.Exec()
+	}
 }
 
 func fill(database *sql.DB) {
@@ -40,6 +56,6 @@ func query(database *sql.DB) {
 	var value string
 	for rows.Next() {
 		rows.Scan(&id, &key, &value)
-		fmt.Println(strconv.Itoa(id) + ":" + key + ":" + value)
+		log.Println(strconv.Itoa(id) + ":" + key + ":" + value)
 	}
 }
